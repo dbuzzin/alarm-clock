@@ -113,8 +113,8 @@ class Clock {
     }
     toDigital(time) {
         // Finds characters and replaces them with images.
-        time = time.replace(/(\d)/g, `<img class="resize-img" src="../images/$1.png" />`);
-        time = time.replace(/[:]/g, `<img class="resize-img" src="../images/colon.png" />`);
+        time = time.replace(/(\d)/g, `<img class="resize-img" src="/images/$1.png" />`);
+        time = time.replace(/[:]/g, `<img class="resize-img" src="/images/colon.png" />`);
 
         return time;
     }
