@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="./css/styles.css">
+    </head>
+    <body>
+        <!--[if lt IE 7]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+
+        <div class="wrapper">
+            <div class="clock">
+                <div id="timeDisplay" class="display"></div>
+                <div id="setDisplay" class="set-display">
+                    <div class="control-btns">
+                        <button type="button" class="btn" id="hourInc">up</button>
+                        <button type="button" class="btn" id="hourDec">down</button>
+                    </div>
+                    <div id="setDisplayScreen">
+
+                    </div>
+                    <div class="control-btns">
+                        <button type="button" class="btn" id="minInc">up</button>
+                        <button type="button" class="btn" id="minDec">down</button>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <button type="button" class="btn btn-main" id="setBtn">Set Alarm</button>
+                <button type="button" class="btn btn-main" id="stopBtn">Stop</button>
+            </div>
+            <div>
+                <button type="button" class="btn btn-main" id="snoozeBtn">Snooze</button>
+            </div>
+        </div>
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.1.3/howler.min.js"></script>
+        <script src="src/main.js" type="module"></script>
+    </body>
+</html>
