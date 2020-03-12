@@ -2,5 +2,8 @@
 
 import clock from "./clock.js";
 
-clock.init();
+clock.init({
+    seconds: true,
+    imgFileName : "digit"
+});
 

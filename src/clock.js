@@ -5,21 +5,18 @@ import defaultOptions from "./defaultOptions.js";
 import {hide, show, zeroBuffer} from "./utilities.js"
 
 /**
+ * Clock constructor.
  * 
- * @param {Object} options - Options passed to the new alarm. You can set these options by calling the config method and passing in an object containing the options.
- * @param {string} options.sound - The sound that will be played by the alarm. Default = "../sound/alarm-sound.wav".
- * @param {number} options.snoozeTime - The time to set the snooze button to in whole minutes e.g. 1, 5, 10 but 0.5 will throw an error. Default = 5.
- * @param {boolean} options.autoSnooze - Sets whether the snooze time is set by the end user or as a default within the code.
- * @param {boolean} options.loop - Set whether the alarm should play on a loop or not. Default = true.
- * @param {boolean} options.twelveHour - Set the clock to 12 or 24 hour mode. Default = true.
- * @param {boolean} options.seconds - Show seconds on the clock. Default = false.
- * @class 
+ * The clock is created using the clock.init() method.
+ * 
+ * @param {Object} options - Options passed to the new alarm during initialisation.
  */
 
 class Clock {
     constructor(options) {
         this.options = options;
         this.currentTime = {};
+        this.timeDiv = document.createElement("div");
 
         // Alarm state
         this.alarm = {
@@ -31,30 +28,77 @@ class Clock {
         };
         
     }
-    init(options = {}) {
-        // Assigns any options set during initialisation.
-        Object.assign(this.options, options);
 
-        // Set up and start clock.
+    /**
+     * This initialises the clock and can be passed a number of options to change the behaviour.
+     * 
+     * ####Example:
+     *     
+     *     clock.init({
+     *         colonPath : "assets/images/colonimg.png",
+     *         am        : false,
+     *         showSecs  : false
+     *     });
+     * 
+     *     clock.init({
+     *         digitPath  : {
+     *             path   : "assets/images/",   Relative path to the digit image.
+     *             prefix : "digit-",           Digit image prefix. File name must include the number but the code will add the number to the path automatically based on the time.
+     *             ext    : ".png"              Digit image file extension.
+     *         }
+     *         sound      : "assets/sounds/fullsong.mp3",   The alarm can play any type of sound, not just the standard bell.
+     *         snoozeTime : 10,                             Snooze time set to 10 minutes.
+     *         loop       : false                           Alarm shouldn't need to loop due to it playing a full song.
+     *         
+     *     });
+     * 
+     * @param {Object} options - {} by default. Used to pass options to the clock constructor.
+     * @param {Object} options.digitPath - {path: "images/", prefix: "", extension: ".png"} by default.
+     * @param {string} options.digitPath.path - "images/" by default. The path leading up to the file names of the digit images.
+     * @param {string} options.digitPath.prefix - "" by default. This is an optional prefix to the digit file name. 
+     * @param {string} options.digitPath.ext - ".png" by default. The file extension of the digit images.
+     * @param {string} options.colonPath - "images/colon.png" by default. The full path to the colon image.
+     * @param {string} options.sound - "../sound/alarm-sound.wav" by default. The sound that will be played by the alarm.
+     * @param {number} options.snoozeTime - 5 by default. The number of whole minutes the snooze button will extend the alarm by.
+     * @param {boolean} options.loop - true by default. Sets the alarm sound to loop until stopped or snoozed.
+     * @param {boolean} options.am - true by default. Sets the clock to either am or pm mode. true = 12h, false = 24h.
+     * @param {boolean} options.showSecs - true by default. Shows the seconds on the clock.
+     */
+
+    init(options = {}) {
+        this.config(options);
         this.reset();
         this.bindEvents();
+        this.get();
         this.tick();
     }
+
+    /**
+     * Assigns any options set during initialisation.
+     * 
+     * @param {Object} options 
+     */
+
+    config(options) {
+        Object.assign(this.options, options);
+    }
+
+    /**
+     * Sets alarm and ui to their initial state.
+     */
+
     reset() {
-        // Show "Set Alarm" button.
         show(cacheDOM.setButton);
-
-        // Hide the set display, "Stop" and "Snooze" buttons
         hide(cacheDOM.setDisplay, cacheDOM.snoozeButton, cacheDOM.stopButton);
-
-        // Reinitialise the alarm
         this.alarm.hours = 0;
         this.alarm.minutes = 0;
         this.alarm.isSet = false;
     }
+
     /**
      * Bind all of the button functions to the class.
      */
+
     bindEvents() {
         cacheDOM.setButton.addEventListener("mousedown", this.set.bind(this));
         cacheDOM.stopButton.addEventListener("mousedown", this.stop.bind(this));
@@ -64,65 +108,148 @@ class Clock {
         cacheDOM.hourInc.addEventListener("mousedown", this.incrementHour.bind(this));
         cacheDOM.hourDec.addEventListener("mousedown", this.decrementHour.bind(this));
     }
+
     /**
-     * Clock Methods
-     * 
+     * Stores the current hour, minute and second in the clock state.
      */
+
     get() {
-        // Create new date object.
         let date = new Date();
 
-        // Store the current second, minute and hour.
-        return Object.assign(this.currentTime, {
-            seconds : date.getSeconds(),
-            minutes : date.getMinutes(),
-            hours   : date.getHours()
+        Object.assign(this.currentTime, {
+            hours    : date.getHours(),
+            minutes  : date.getMinutes(),
+            seconds  : date.getSeconds()
         })
     }
-    twelveHour(num) {
-        // Minuses 12 from current hour for 12 hour clock.
-        if(this.options.twelveHour && num > 12) {
-            return num - 12;
-        } 
-        else {
-            return num;
-        }
-    }
-    tick() {
-        // Get the current time before anything else.
-        this.get();
 
-        // Destructure units for ease of use.
+    /**
+     * Checks if "am" mode is true, and if so minuses 12 from the number passed if higher than 12.
+     * 
+     * @param {number} num - The current hour or hour digit on the alarm setting ui.
+     * @returns {number}   - The number passed || the number passed - 12
+     */
+
+    am(num) {
+        return this.options.am && num > 12 
+            ? num - 12
+            : num;
+    }
+
+    /**
+     * Creates time string from current time.
+     * 
+     * @returns {string} - A string made from the current time and mode e.g. 16:48 or 4:48:00.
+     */
+
+    timeString() {
         let {seconds, minutes, hours} = this.currentTime;
-
-        // Construct clock face using current time. 
-        let time = `${this.twelveHour(hours)}:${zeroBuffer(minutes)}${this.options.seconds ? `:${zeroBuffer(seconds)}` : ""}`;
-
-        if(this.alarm.isSet) {
-            // Alarm will sound when current time matches the set time.
-            if(minutes === this.alarm.minutes && this.twelveHour(hours) === this.alarm.hours)  {
-                this.ring();
-            }
-        }
-
-        // Draw current time to the screen
-        cacheDOM.timeDisplay.innerHTML = this.toDigital(time);
-
-        // Run function again after 1000ms
-        return setTimeout(this.tick.bind(this), 1000)
-    }
-    toDigital(time) {
-        // Finds characters and replaces them with images.
-        time = time.replace(/(\d)/g, `<img class="resize-img" src="./../images/$1.png" />`);
-        time = time.replace(/[:]/g, `<img class="resize-img" src="./../images/colon.png" />`);
+        let time = `${this.am(hours)}:${zeroBuffer(minutes)}${this.options.seconds ? `:${zeroBuffer(seconds)}` : ""}`;
 
         return time;
     }
 
     /**
-     * Alarm methods
+     * Returns a simple token representing an "img" DOM node.
      * 
+     * @param {string} src - The src of the image to be created from the token.
+     * @returns {Object}   - Token containing the DOM element type "img" and the src to be attached to it.
      */
+
+    digitToken(src) {
+        return {type: "img", src};
+    }
+
+    /**
+     * Takes in a time string, splits it in to individual characters and creates a virtual DOM token for each one. It then returns the tokens in an array.
+     * 
+     * @param {string} digitStr - A string representing the time e.g. 16:48 or 4:48:00.
+     * @returns {Array}         - An array of tokens representing "img" DOM nodes
+     */
+
+    vDigits(digitStr) {
+        let {colonPath, digitPath} = this.options;
+        let tokens = [];
+
+        digitStr.split("").forEach(t => {
+            if(t === ":") {
+                tokens.push(this.digitToken(colonPath));
+            }
+            else {
+                let {path, prefix, ext} = digitPath;
+                tokens.push(this.digitToken(path + prefix + t + ext));
+            }
+        });
+
+        return tokens;
+    }
+
+    /**
+     * Returns an array of virtual DOM elements created using the tokens passed in.
+     * 
+     * @param {Array} tokens - An array of tokens created by the vDigits() method.
+     * @returns {Array}      - An array of virtual DOM elements.
+     */
+    
+    createDigits(tokens) {
+        let tokenArr = []
+        for(let token of tokens) {
+            const el = document.createElement(token.type);
+            el.src = token.src;
+            tokenArr.push(el)
+        }
+        
+        return tokenArr;
+    }
+
+    /**
+     * Checks the new digits against the previous ones and only replaces a digit in the DOM if it is different. 
+     * 
+     * @param {DOMElement} parent - The element which the digits will be appended to.
+     * @param {Array} newDigits   - An array containing the current digits.
+     * @param {Array} oldDigits   - An array containing the previous digits.
+     */
+
+    update(parent, newDigits, oldDigits) {
+        if(!parent.children.length) {
+            newDigits.forEach(digit => parent.appendChild(digit));
+        }
+        else {
+            newDigits.forEach((digit, index) => {
+                if(digit.src !== oldDigits[index].src) {
+                    parent.replaceChild(digit, parent.childNodes[index + 1]);
+                }
+            });
+        }
+    }
+
+    /**
+     * Stores previous second and checks if alarm is set for this time. It then gets current time, updates the DOM and re-calls itself after 1 second has passed.
+     */
+
+    tick() {
+        let prevSecond = this.createDigits(this.vDigits(this.timeString()));
+
+        this.checkAlarm();
+
+        setTimeout(() => {
+            this.get();
+            this.update(cacheDOM.timeDisplay, this.createDigits(this.vDigits(this.timeString())), prevSecond);
+            this.tick();
+        }, 1000)
+    }
+
+    /**
+     * toDigital is to be replaced.
+     */
+
+    toDigital(time) {
+        // Finds characters and replaces them with images.
+        time = time.replace(/(\d)/g, `<img class="resize-img" src="images/$1.png" />`);
+        time = time.replace(/[:]/g, `<img class="resize-img" src="images/colon.png" />`);
+
+        return time;
+    }
 
     set() {
         if(!this.alarm.isReady) {
@@ -166,14 +293,23 @@ class Clock {
         this.setDisplay();
     }
     incrementHour() {
-        this.alarm.hours < this.twelveHour(23) ? this.alarm.hours++ : this.alarm.hours = 0;
+        this.alarm.hours < this.am(23) ? this.alarm.hours++ : this.alarm.hours = 0;
         this.setDisplay();
     }
     decrementHour() {
-        this.alarm.hours > 0 ? this.alarm.hours-- : this.alarm.hours = this.twelveHour(23);
+        this.alarm.hours > 0 ? this.alarm.hours-- : this.alarm.hours = this.am(23);
         this.setDisplay();
     }
+    checkAlarm() {
+        let {minutes, hours} = this.currentTime;
 
+        if(this.alarm.isSet) {
+            // Alarm will sound when current time matches the set time.
+            if(minutes === this.alarm.minutes && this.am(hours) === this.alarm.hours)  {
+                this.ring();
+            }
+        }
+    }
     ring() {
         // Display "Stop" and "Snooze" buttons once alarm rings
         show(cacheDOM.stopButton, cacheDOM.snoozeButton);
