@@ -2,11 +2,11 @@
 
 const defaultOptions = {
     digitPath        : {
-        path         : "images/",
+        path         : "./images/",
         prefix       : "",
         ext          : ".png"
     },
-    colonPath        : "images/colon.png",
+    colonPath        : "./images/colon.png",
     sound            : "../sound/alarm-sound.wav",
     snoozeTime       : 1,
     loop             : true,

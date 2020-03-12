@@ -53,7 +53,7 @@ class Clock {
      *     });
      * 
      * @param {Object} options - {} by default. Used to pass options to the clock constructor.
-     * @param {Object} options.digitPath - {path: "images/", prefix: "", extension: ".png"} by default.
+     * @param {Object} options.digitPath - {path: "./images/", prefix: "", extension: ".png"} by default.
      * @param {string} options.digitPath.path - "images/" by default. The path leading up to the file names of the digit images.
      * @param {string} options.digitPath.prefix - "" by default. This is an optional prefix to the digit file name. 
      * @param {string} options.digitPath.ext - ".png" by default. The file extension of the digit images.
@@ -245,8 +245,8 @@ class Clock {
 
     toDigital(time) {
         // Finds characters and replaces them with images.
-        time = time.replace(/(\d)/g, `<img class="resize-img" src="images/$1.png" />`);
-        time = time.replace(/[:]/g, `<img class="resize-img" src="images/colon.png" />`);
+        time = time.replace(/(\d)/g, `<img class="resize-img" src="./images/$1.png" />`);
+        time = time.replace(/[:]/g, `<img class="resize-img" src="./images/colon.png" />`);
 
         return time;
     }
