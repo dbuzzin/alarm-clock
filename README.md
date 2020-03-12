@@ -9,11 +9,13 @@ A simple, digital alarm clock built using vanilla Javascript and howler.js for t
 * Digital interface
 * Snooze button (Needs fixing so e.g. a 10 minute snooze set at 15:55 will wrap round to 16:05)
 * Working Options - (Set during initialisation)
+  * Set digit path, file name prefix and extension
+  * Set colon path
   * Choose sound
   * Set snooze time
   * Set sound to loop
-  * Switch between 12 and 24 hour time
-  * View seconds
+  * Switch between "am" and "pm" mode.
+  * Show seconds
 
 ### Optimisations Needed - (More to come as I think of them)
 
