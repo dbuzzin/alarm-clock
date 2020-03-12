@@ -7,10 +7,10 @@ A simple, digital alarm clock built using vanilla Javascript and howler.js for t
 ### Current Features
 
 * Digital interface
-* Snooze button
+* Snooze button (Needs fixing so e.g. a 10 minute snooze set at 15:55 will wrap round to 16:05)
 * Working Options - (Set during initialisation)
   * Choose sound
-  * Set snooze time (Needs fixing so e.g. a 10 minute snooze set at 15:55 will wrap round to 16:05)
+  * Set snooze time
   * Set sound to loop
   * Switch between 12 and 24 hour time
   * View seconds
